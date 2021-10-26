@@ -1,0 +1,54 @@
+Resources:
+  FrontWebsiteOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Origin Access Identity to Access Website Bucket
+        
+  FrontPageCloudFront:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - FrontWebsiteBucket
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - FrontWebsiteBucket
+                - RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                  - /
+                  - - origin-access-identity
+                    - cloudfront
+                    - !Ref FrontWebsiteOriginAccessIdentity
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 0
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          LambdaFunctionAssociations:
+            - EventType: viewer-response
+              LambdaFunctionARN: 
+                Ref: LambdaEdgeVersion
+          SmoothStreaming: false
+        Comment: appquierelo website in s3
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true

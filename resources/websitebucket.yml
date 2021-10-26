@@ -1,0 +1,26 @@
+Resources:
+  FrontWebsiteBucket:
+    Type: AWS::S3::Bucket
+  
+  FrontWebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: 
+        Ref: FrontWebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource:
+              Fn::Join:
+                - /
+                - - Fn::GetAtt:
+                      - FrontWebsiteBucket
+                      - Arn
+                  - '*'
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - FrontWebsiteOriginAccessIdentity
+                  - S3CanonicalUserId
