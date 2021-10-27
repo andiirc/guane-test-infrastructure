@@ -15,11 +15,6 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - cloudfront:CreateInvalidation
-      Resource:
-        - FrontPageCloudFront.Arn
-    - Effect: Allow
-      Action:
         - s3:PutObject
       Resource:
         Fn::Join:
